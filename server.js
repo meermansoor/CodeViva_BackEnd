@@ -37,10 +37,6 @@ app.use(express.static(path.resolve('./testing')));
 // ----------------------------------------------------------------
 // REST Routes
 // ----------------------------------------------------------------
-// Root endpoint
-app.get('/', (req, res) => {
-  res.send('Welcome to the CodeViva BackEnd');
-});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/viva', vivaRoutes);
@@ -84,7 +80,6 @@ async function start() {
       console.log(`  MongoDB:         ${config.mongoUri}`);
       console.log('');
       console.log('  Endpoints:');
-      console.log('    GET  /                              - Welcome message');
       console.log('    POST /api/questions                 - Create question bank');
       console.log('    GET  /api/questions                 - List question banks');
       console.log('    POST /api/viva/session/start        - Start student viva');
