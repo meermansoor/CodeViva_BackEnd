@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { transcribeAudio } from '../services/pythonBridge.js';
 import { config } from '../config/index.js';
+import Session from '../models/Session.js';
 
 export function setupAudioSocket(io) {
   // Ensure uploads directory exists
@@ -89,6 +90,50 @@ export function setupAudioSocket(io) {
           fs.renameSync(tempPath, permanentPath);
           console.log(`[Socket.IO] Audio permanently saved to: ${permanentPath}`);
         }
+      }
+    });
+
+    /**
+     * Client reports a proctoring violation (e.g. MediaPipe head movement, face absent, multiple faces)
+     * Payload: { sessionId, type, label, durationMs, timestamp }
+     */
+    socket.on('proctor:violation', async (payload) => {
+      const { sessionId, type, label } = payload || {};
+      if (!sessionId) return;
+      console.log(`[Socket.IO Proctor] Violation for session ${sessionId}: ${label} (${type})`);
+
+      try {
+        const session = await Session.findById(sessionId);
+        if (!session) return;
+
+        // Calculate increment based on severity
+        const increment = type === 'OBJECT_DETECTED' ? 25 : type === 'MULTIPLE_FACES' ? 20 : type === 'GAZE_DEVIATION' ? 15 : type === 'FACE_ABSENT' ? 15 : 10;
+        const currentProb = session.proctoringLogs?.cheatingProbability || 0;
+        const newProb = Math.min(100, currentProb + increment);
+        const newStatus = newProb >= 40 ? 'SUSPICIOUS' : 'CLEAN';
+
+        const flagMsg = `[${new Date().toLocaleTimeString()}] ${label}`;
+
+        if (!session.proctoringLogs) {
+          session.proctoringLogs = { cheatingProbability: 0, proctoringStatus: 'CLEAN', flags: [] };
+        }
+
+        session.proctoringLogs.cheatingProbability = newProb;
+        session.proctoringLogs.proctoringStatus = newStatus;
+        session.proctoringLogs.flags.push(flagMsg);
+        await session.save();
+
+        // Broadcast real-time update to teacher live monitoring
+        io.emit('teacher_live_update', {
+          type: 'PROCTOR_ALERT',
+          sessionId: session._id,
+          cheatingProbability: newProb,
+          flags: session.proctoringLogs.flags,
+          studentInfo: session.studentInfo,
+          violation: { type, label }
+        });
+      } catch (err) {
+        console.error('[Socket.IO Proctor] Error updating proctoring logs:', err.message);
       }
     });
 
