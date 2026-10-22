@@ -18,10 +18,10 @@ export const checkRoom = async (req, res) => {
       }
       studentName = student.name;
     }
-    
-    res.json({ 
-      success: true, 
-      valid: true, 
+
+    res.json({
+      success: true,
+      valid: true,
       studentName,
       courseName: room.questionBankId?.title || "Unknown Course",
       totalQuestions: room.questionBankId?.questions?.length || 0,
@@ -131,7 +131,7 @@ export const getSession = async (req, res) => {
 
     const state = session.vivaState;
     const currentQ = state.question_bank[state.current_index];
-    
+
     const qbQuestion = session.questionBankId?.questions?.find(q => q.id === currentQ?.id);
     const actualAudio = qbQuestion?.audio_file || currentQ?.audio_file || null;
 
@@ -210,7 +210,7 @@ export const submitAction = async (req, res) => {
           });
         }
       }
-      
+
       if (answersArray.length > 0) {
         await StudentAnswer.findOneAndUpdate(
           { sessionId: session._id },
@@ -233,20 +233,20 @@ export const submitAction = async (req, res) => {
     await session.save();
 
     const currentQ = updatedState.question_bank[updatedState.current_index];
-    
+
     const qbQuestion = session.questionBankId?.questions?.find(q => q.id === currentQ?.id);
     const actualAudio = qbQuestion?.audio_file || currentQ?.audio_file || null;
 
     const responseData = {
       sessionId: session._id,
-        currentQuestion: {
-          index: updatedState.current_index,
-          total: updatedState.total_questions,
-          question: currentQ?.question || null,
-          id: currentQ?.id || null,
-          audio_file: actualAudio,
-          topic: currentQ?.topic || 'General Topic'
-        },
+      currentQuestion: {
+        index: updatedState.current_index,
+        total: updatedState.total_questions,
+        question: currentQ?.question || null,
+        id: currentQ?.id || null,
+        audio_file: actualAudio,
+        topic: currentQ?.topic || 'General Topic'
+      },
       syllabusId: session.questionBankId?.syllabusId,
       subState: updatedState.sub_state,
       pendingTranscript: updatedState.pending_transcript,
@@ -306,7 +306,7 @@ export const completeSession = async (req, res) => {
     const scorePercentage = individualReport.score_percentage || 0;
     const finalGrade = individualReport.final_grade || 'F';
     const gradePoint = individualReport.grade_point || 0.0;
-    
+
     // Parse totalScore from "marks_obtained" (e.g., "13.5 / 15.0")
     const marksObtainedStr = individualReport.marks_obtained || "0";
     const totalScore = parseFloat(marksObtainedStr.split(" / ")[0]) || 0;
