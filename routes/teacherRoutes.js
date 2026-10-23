@@ -4,6 +4,7 @@ import {
   getDashboardData,
   getSessions,
   getSessionById,
+  updateStudentAnswerScore,
   exportExcel,
   createExamRoom,
   getExamRooms,
@@ -16,6 +17,7 @@ router.use(authTeacher); // Protect all teacher routes
 router.get('/dashboard', getDashboardData);
 router.get('/sessions', getSessions);
 router.get('/session/:id', getSessionById);
+router.put('/session/:id/answer/:questionIndex', updateStudentAnswerScore);
 router.get('/export/excel', exportExcel);
 router.post('/exam-rooms', createExamRoom);
 router.get('/exam-rooms', getExamRooms);

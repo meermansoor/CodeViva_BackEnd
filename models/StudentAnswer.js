@@ -16,7 +16,15 @@ const studentAnswerSchema = new mongoose.Schema({
     maxMarks: Number,
     feedback: String,
     matchedConcepts: [String],
-    isAnswered: Boolean
+    missedConcepts: [String],
+    confidence: Number,
+    teacherReviewRequired: Boolean,
+    reviewReason: String,
+    gradingRoute: String,
+    evaluationDetails: mongoose.Schema.Types.Mixed,
+    isAnswered: Boolean,
+    isReviewed: { type: Boolean, default: false },
+    teacherNotes: { type: String, default: '' }
   }]
 }, { timestamps: true });
 

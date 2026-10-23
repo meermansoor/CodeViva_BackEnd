@@ -12,9 +12,11 @@ const questionBankSchema = new mongoose.Schema({
     topic: { type: String, default: 'General' },
     difficulty: { type: String, default: 'medium' },
     model_answer: { type: String, default: '' },
+    marks: { type: Number },
   }],
   totalMarks: { type: Number, default: 15.0 },
-  timeLimitSec: { type: Number, default: 600 },
+  timeLimitSec: { type: Number, default: 1800 },
+  questionsPerStudent: { type: Number, default: 5 },
   syllabusId: { type: String, default: '' },
 }, { timestamps: true });
 

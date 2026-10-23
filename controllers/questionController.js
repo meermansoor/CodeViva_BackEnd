@@ -57,7 +57,9 @@ export const generateQuestionBank = async (req, res) => {
     const formattedQuestions = ragResponse.questions.map((q, index) => ({
       id: q.id || String(index + 1),
       question: q.question || q.text,
-      keywords: (q.expected_keywords && q.expected_keywords.length > 0) ? q.expected_keywords : (q.answer_keywords || []),
+      keywords: (q.answer_keywords && q.answer_keywords.length > 0)
+        ? q.answer_keywords
+        : ((q.expected_keywords && q.expected_keywords.length > 0) ? q.expected_keywords : []),
       concepts: q.concepts || [],
       audio_file: q.audio_file || null,
       topic: q.topic || 'General',
